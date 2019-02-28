@@ -7,12 +7,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -21,16 +19,17 @@ import java.util.stream.Stream;
 
 public class Generator {
 
-    private String femaleNames = "src/main/resources/fnames.txt";
-    private String maleNames = "src/main/resources/mnames.txt";
-    private String femalePatronymics = "src/main/resources/fpatronymics.txt";
-    private String malePatronymics = "src/main/resources/mpatronymics.txt";
-    private String femaleSurnames = "src/main/resources/fsurnames.txt";
-    private String maleSurnames = "src/main/resources/msurnames.txt";
-    private String cities = "src/main/resources/cities.txt";
-    private String countries = "src/main/resources/countries.txt";
-    private String regions = "src/main/resources/regions.txt";
-    private String streets = "src/main/resources/streets.txt";
+    private static String pathToResources = "src/main/resources";
+    private static String femaleNames = pathToResources + "/fnames.txt";
+    private static String maleNames = pathToResources+"/"+"mnames.txt";
+    private static String femalePatronymics = pathToResources+"/"+"fpatronymics.txt";
+    private static String malePatronymics = pathToResources+"/"+"mpatronymics.txt";
+    private static String femaleSurnames = pathToResources+"/"+"fsurnames.txt";
+    private static String maleSurnames = pathToResources+"/"+"msurnames.txt";
+    private static String cities = pathToResources+"/"+"cities.txt";
+    private static String countries = pathToResources+"/"+"countries.txt";
+    private static String regions = pathToResources+"/"+"regions.txt";
+    private static String streets = pathToResources+"/"+"streets.txt";
     private List<String> femaleNamesList;
     private List<String> maleNamesList;
     private List<String> malePatronymicsList;
@@ -84,12 +83,36 @@ public class Generator {
         row.createCell(12).setCellValue("Дом");
         row.createCell(13).setCellValue("Квартира");
 
-        try (FileOutputStream out = new FileOutputStream(new File("src/main/resources/excel.xls"))) {
+        for (Record record: records) {
+            rowNum++;
+            row = sheet.createRow(rowNum);
+            row.createCell(0).setCellValue(record.getName());
+            row.createCell(1).setCellValue(record.getSurname());
+            row.createCell(2).setCellValue(record.getPatronymic());
+            row.createCell(3).setCellValue(record.getAge());
+            row.createCell(4).setCellValue(record.getGender());
+            row.createCell(5).setCellValue(record.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+            row.createCell(6).setCellValue(record.getInn());
+            row.createCell(7).setCellValue(record.getZipCode());
+            row.createCell(8).setCellValue(record.getCountry());
+            row.createCell(9).setCellValue(record.getRegion());
+            row.createCell(10).setCellValue(record.getCity());
+            row.createCell(11).setCellValue(record.getStreet());
+            row.createCell(12).setCellValue(record.getBuilding());
+            row.createCell(13).setCellValue(record.getApartment());
+        }
+
+        try (FileOutputStream out = new FileOutputStream(new File(pathToResources+"/"+"excel.xls"))) {
             workbook.write(out);
         } catch (IOException e) {
             e.getMessage();
         }
+    }
 
+    
+    private void generateInn(){
+        String s = "77"+String.valueOf(rnd.nextInt(50)+1);
+        System.out.println("Первая часть инн " + s);
 
     }
 
