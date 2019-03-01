@@ -21,15 +21,15 @@ public class Generator {
 
     private static String pathToResources = "src/main/resources";
     private static String femaleNames = pathToResources + "/fnames.txt";
-    private static String maleNames = pathToResources+"/"+"mnames.txt";
-    private static String femalePatronymics = pathToResources+"/"+"fpatronymics.txt";
-    private static String malePatronymics = pathToResources+"/"+"mpatronymics.txt";
-    private static String femaleSurnames = pathToResources+"/"+"fsurnames.txt";
-    private static String maleSurnames = pathToResources+"/"+"msurnames.txt";
-    private static String cities = pathToResources+"/"+"cities.txt";
-    private static String countries = pathToResources+"/"+"countries.txt";
-    private static String regions = pathToResources+"/"+"regions.txt";
-    private static String streets = pathToResources+"/"+"streets.txt";
+    private static String maleNames = pathToResources + "/" + "mnames.txt";
+    private static String femalePatronymics = pathToResources + "/" + "fpatronymics.txt";
+    private static String malePatronymics = pathToResources + "/" + "mpatronymics.txt";
+    private static String femaleSurnames = pathToResources + "/" + "fsurnames.txt";
+    private static String maleSurnames = pathToResources + "/" + "msurnames.txt";
+    private static String cities = pathToResources + "/" + "cities.txt";
+    private static String countries = pathToResources + "/" + "countries.txt";
+    private static String regions = pathToResources + "/" + "regions.txt";
+    private static String streets = pathToResources + "/" + "streets.txt";
     private List<String> femaleNamesList;
     private List<String> maleNamesList;
     private List<String> malePatronymicsList;
@@ -44,8 +44,35 @@ public class Generator {
     Random rnd = new Random();
 
     @Test
-    public void ReadFiles() throws IOException {
+    public void testINN(){
+        System.out.println(getINN());
+    }
 
+    private String getINN() {
+        String resultINN = "77" + String.valueOf(rnd.nextInt(50) + 1);
+        int[] INN = new int[12];
+
+        INN[0] = 7;
+        INN[1] = 7;
+        INN[2] = 5;
+        INN[3] = 1;
+        resultINN += String.valueOf(INN[0]+INN[1]+INN[2]+INN[3]);
+        for (int i = 4; i < 9; i++) {
+            INN[i] = rnd.nextInt(9);
+            resultINN += INN[i];
+        }
+
+        INN[10] = ((7 * INN[0] + 2 * INN[1] + 4 * INN[2] + 10 * INN[3] + 3 * INN[4] + 5 * INN[5] + 9 * INN[6] + 4 * INN[7] + 6 * INN[8] + 8 * INN[9]) % 11) % 10;
+        resultINN += INN[10];
+
+
+        INN[11] = ((3 * INN[0] + 7 * INN[1] + 2 * INN[2] + 4 * INN[3] + 10 * INN[4] + 3 * INN[5] + 5 * INN[6] + 9 * INN[7] + 4 * INN[8] + 6 * INN[9] + 8*INN[10]) % 11) % 10;
+        resultINN += INN[11];
+        return resultINN;
+    }
+
+    @Test
+    public void ReadFiles() throws IOException {
         femaleNamesList = readDataAndWriteIntoList(femaleNames);
         femalePatronymicsList = readDataAndWriteIntoList(femalePatronymics);
         femaleSurnamesList = readDataAndWriteIntoList(femaleSurnames);
@@ -83,7 +110,7 @@ public class Generator {
         row.createCell(12).setCellValue("Дом");
         row.createCell(13).setCellValue("Квартира");
 
-        for (Record record: records) {
+        for (Record record : records) {
             rowNum++;
             row = sheet.createRow(rowNum);
             row.createCell(0).setCellValue(record.getName());
@@ -102,19 +129,15 @@ public class Generator {
             row.createCell(13).setCellValue(record.getApartment());
         }
 
-        try (FileOutputStream out = new FileOutputStream(new File(pathToResources+"/"+"excel.xls"))) {
+        try (FileOutputStream out = new FileOutputStream(new File(pathToResources + "/" + "excel.xls"))) {
             workbook.write(out);
         } catch (IOException e) {
             e.getMessage();
         }
     }
 
-    
-    private void generateInn(){
-        String s = "77"+String.valueOf(rnd.nextInt(50)+1);
-        System.out.println("Первая часть инн " + s);
 
-    }
+
 
     private List<Record> fillData(int size) {
         List<Record> records = new ArrayList<>();
@@ -155,9 +178,6 @@ public class Generator {
         return records;
     }
 
-    private void createSheetHeader(HSSFSheet sheet, int rowNum, Record record) {
-
-    }
 
     private LocalDate createRandomBirthDate() {
         int minDay = (int) LocalDate.of(1900, 1, 1).toEpochDay();
