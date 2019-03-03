@@ -1,8 +1,7 @@
+package info.gabi.datagenerator;
+
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
 
 public class Record {
 
@@ -23,7 +22,7 @@ public class Record {
 
     @Override
     public String toString() {
-        return "Record{" +
+        return "info.gabi.datagenerator.Record{" +
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", patronymic='" + patronymic + '\'' +

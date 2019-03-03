@@ -1,11 +1,18 @@
+package info.gabi.datagenerator;
+
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -30,34 +37,27 @@ public class Generator {
     private static String countries = pathToResources + "/" + "countries.txt";
     private static String regions = pathToResources + "/" + "regions.txt";
     private static String streets = pathToResources + "/" + "streets.txt";
-    private List<String> femaleNamesList;
-    private List<String> maleNamesList;
-    private List<String> malePatronymicsList;
-    private List<String> femalePatronymicsList;
-    private List<String> femaleSurnamesList;
-    private List<String> maleSurnamesList;
-    private List<String> regionsList;
-    private List<String> streetsList;
-    private List<String> countriesList;
-    private List<String> citiesList;
+    private static List<String> femaleNamesList;
+    private static List<String> maleNamesList;
+    private static List<String> malePatronymicsList;
+    private static List<String> femalePatronymicsList;
+    private static List<String> femaleSurnamesList;
+    private static List<String> maleSurnamesList;
+    private static List<String> regionsList;
+    private static List<String> streetsList;
+    private static List<String> countriesList;
+    private static List<String> citiesList;
 
-    Random rnd = new Random();
+    private static Random rnd = new Random();
 
-    @Test
-    public void testINN(){
-        System.out.println(getINN());
-    }
-
-    private String getINN() {
-        String resultINN = "77" + String.valueOf(rnd.nextInt(50) + 1);
+    private static String getINN() {
         int[] INN = new int[12];
-
         INN[0] = 7;
         INN[1] = 7;
         INN[2] = 5;
         INN[3] = 1;
-        resultINN += String.valueOf(INN[0]+INN[1]+INN[2]+INN[3]);
-        for (int i = 4; i < 9; i++) {
+        String resultINN = "" + INN[0] + INN[1] + INN[2] + INN[3];
+        for (int i = 4; i < 10; i++) {
             INN[i] = rnd.nextInt(9);
             resultINN += INN[i];
         }
@@ -66,13 +66,17 @@ public class Generator {
         resultINN += INN[10];
 
 
-        INN[11] = ((3 * INN[0] + 7 * INN[1] + 2 * INN[2] + 4 * INN[3] + 10 * INN[4] + 3 * INN[5] + 5 * INN[6] + 9 * INN[7] + 4 * INN[8] + 6 * INN[9] + 8*INN[10]) % 11) % 10;
+        INN[11] = ((3 * INN[0] + 7 * INN[1] + 2 * INN[2] + 4 * INN[3] + 10 * INN[4] + 3 * INN[5] + 5 * INN[6] + 9 * INN[7] + 4 * INN[8] + 6 * INN[9] + 8 * INN[10]) % 11) % 10;
         resultINN += INN[11];
         return resultINN;
     }
 
-    @Test
-    public void ReadFiles() throws IOException {
+    public static void main(String[] args) throws IOException, URISyntaxException, DocumentException {
+        readFilesAndWriteDataIntoXlsAndPdf();
+    }
+
+
+    private static void readFilesAndWriteDataIntoXlsAndPdf() throws IOException, URISyntaxException, DocumentException {
         femaleNamesList = readDataAndWriteIntoList(femaleNames);
         femalePatronymicsList = readDataAndWriteIntoList(femalePatronymics);
         femaleSurnamesList = readDataAndWriteIntoList(femaleSurnames);
@@ -83,15 +87,17 @@ public class Generator {
         streetsList = readDataAndWriteIntoList(streets);
         countriesList = readDataAndWriteIntoList(countries);
         citiesList = readDataAndWriteIntoList(cities);
+        List<Record> records = fillData(rnd.nextInt(80)+30);
 
+
+        createXslAndFill(records);
+
+        createPdfAndFill(records);
+    }
+
+    private static void createXslAndFill(List<Record> records) {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("Контакты");
-
-        List<Record> records = fillData(30);
-
-        records.forEach(Record::print);
-
-
         int rowNum = 0;
 
         Row row = sheet.createRow(rowNum);
@@ -131,31 +137,95 @@ public class Generator {
 
         try (FileOutputStream out = new FileOutputStream(new File(pathToResources + "/" + "excel.xls"))) {
             workbook.write(out);
+            System.out.println("Файл создан. Путь: " + pathToResources + "/excel.xsl");
         } catch (IOException e) {
             e.getMessage();
         }
     }
 
+    private static void createPdfAndFill(List<Record> records) throws DocumentException, IOException {
+        Document document = new Document(PageSize.A4.rotate(), 0f, 0f, 10f, 10f);
+
+        PdfWriter.getInstance(document, new FileOutputStream(pathToResources + "/" + "pdf.pdf"));
+        System.out.println("Файл создан. Путь: " + pathToResources + "/pdf.pdf");
+        document.open();
+        PdfPTable table = new PdfPTable(14);
+        addTableHeader(table);
+        addRows(table, records);
+
+        document.add(table);
+        document.close();
+    }
+
+    private static void addTableHeader(PdfPTable table) {
+        Font font = FontFactory.getFont(pathToResources+"/ubuntu.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED,  8);
+
+        Stream.of("Имя", "Фамилия", "Отчество", "Age", "Пол", "Дата рождения", "ИНН", "Почтовый индекс",
+                "Страна", "Область", "Город", "Улица", "Дом", "Квартира")
+                .forEach(columnTitle -> {
+                    PdfPCell header = new PdfPCell();
+                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    header.setPhrase(new Phrase(columnTitle,font));
+                    table.addCell(header);
+                });
+    }
+
+    private static void addRows(PdfPTable table, List<Record> records) {
+        Font font = FontFactory.getFont(pathToResources+"/ubuntu.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 8);
+
+        PdfPCell row = new PdfPCell();
+        for (Record record : records) {
+            row.setPhrase(new Phrase(record.getName(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getSurname(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getPatronymic(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getAge().toString(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getGender(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getInn(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getZipCode(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getCountry(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getRegion(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getCity(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getStreet(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getBuilding(), font));
+            table.addCell(row);
+            row.setPhrase(new Phrase(record.getApartment(), font));
+            table.addCell(row);
+
+            table.completeRow();
+        }
+    }
 
 
-
-    private List<Record> fillData(int size) {
+    private static List<Record> fillData(int size) {
         List<Record> records = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             Boolean male = rnd.nextBoolean();
             if (male) {
                 records.add(new Record(
-                        maleNamesList.get(rnd.nextInt(30)),
-                        maleSurnamesList.get(rnd.nextInt(30)),
-                        malePatronymicsList.get(rnd.nextInt(30)),
+                        maleNamesList.get(rnd.nextInt(maleNamesList.size())),
+                        maleSurnamesList.get(rnd.nextInt(maleSurnamesList.size())),
+                        malePatronymicsList.get(rnd.nextInt(malePatronymicsList.size())),
                         "М",
                         createRandomBirthDate(),
-                        "",
-                        "",
-                        countriesList.get(rnd.nextInt(100)),
-                        regionsList.get(rnd.nextInt(40)),
-                        citiesList.get(rnd.nextInt(30)),
-                        streetsList.get(rnd.nextInt(30)),
+                        getINN(),
+                        String.valueOf(rnd.nextInt(100000) + 100000),
+                        countriesList.get(rnd.nextInt(countriesList.size())),
+                        regionsList.get(rnd.nextInt(regionsList.size())),
+                        citiesList.get(rnd.nextInt(citiesList.size())),
+                        streetsList.get(rnd.nextInt(streetsList.size())),
                         String.valueOf(rnd.nextInt(50)),
                         String.valueOf(rnd.nextInt(500))));
             } else {
@@ -165,8 +235,8 @@ public class Generator {
                         femalePatronymicsList.get(rnd.nextInt(30)),
                         "Ж",
                         createRandomBirthDate(),
-                        "",
-                        "",
+                        getINN(),
+                        String.valueOf(rnd.nextInt(100000) + 100000),
                         countriesList.get(rnd.nextInt(100)),
                         regionsList.get(rnd.nextInt(40)),
                         citiesList.get(rnd.nextInt(30)),
@@ -179,7 +249,7 @@ public class Generator {
     }
 
 
-    private LocalDate createRandomBirthDate() {
+    private static LocalDate createRandomBirthDate() {
         int minDay = (int) LocalDate.of(1900, 1, 1).toEpochDay();
         int maxDay = (int) LocalDate.of(2000, 1, 1).toEpochDay();
         long randomDay = minDay + rnd.nextInt(maxDay - minDay);
@@ -188,7 +258,7 @@ public class Generator {
     }
 
 
-    private List<String> readDataAndWriteIntoList(String filePath) throws IOException {
+    private static List<String> readDataAndWriteIntoList(String filePath) throws IOException {
         List<String> list = null;
         try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
             list = lines.collect(Collectors.toList());
