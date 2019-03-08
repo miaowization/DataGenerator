@@ -37,8 +37,6 @@ public class Requester {
             JsonArray arr = rootObject.getAsJsonArray("countries");
             JsonElement country  = arr.get(rndCountryNumber);
 
-
-
             Record record1 = Record.builder()
                     .name(name)
                     .surname(surname)
