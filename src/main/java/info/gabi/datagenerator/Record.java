@@ -1,14 +1,17 @@
 package info.gabi.datagenerator;
 
+import lombok.Builder;
+import lombok.Generated;
+
 import java.time.LocalDate;
 import java.time.Period;
 
+@Builder
 public class Record {
 
     private String name;
     private String surname;
     private String patronymic;
-    private Integer age;
     private String gender;
     private LocalDate birthDate;
     private String inn;
@@ -26,7 +29,7 @@ public class Record {
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", patronymic='" + patronymic + '\'' +
-                ", age=" + age +
+                ", age=" + getAge() +
                 ", gender='" + gender + '\'' +
                 ", birthDate=" + birthDate +
                 ", inn='" + inn + '\'' +
@@ -40,8 +43,11 @@ public class Record {
                 '}';
     }
 
-    public void print(){
+    public void print() {
         System.out.println(this.toString());
+    }
+
+    public Record() {
     }
 
     public Record(String name, String surname, String patronymic, String gender,
@@ -53,7 +59,6 @@ public class Record {
         this.patronymic = patronymic;
         this.gender = gender;
         this.birthDate = birthDate;
-        this.age = calculateAge(this.birthDate);
         this.inn = inn;
         this.zipCode = zipCode;
         this.country = country;
@@ -64,8 +69,9 @@ public class Record {
         this.apartment = apartment;
     }
 
-    private Integer calculateAge(LocalDate birthDate)
-    {
+
+
+    private Integer calculateAge(LocalDate birthDate) {
 
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
@@ -177,10 +183,6 @@ public class Record {
 
 
     public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
+        return calculateAge(this.birthDate);
     }
 }
