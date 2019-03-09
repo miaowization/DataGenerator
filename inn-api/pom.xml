@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>info.gabi</groupId>
-    <artifactId>inn-api</artifactId>
+    <artifactId>apigenerator</artifactId>
     <version>1.0</version>
 
     <parent>

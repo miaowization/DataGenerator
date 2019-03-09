@@ -76,7 +76,7 @@ public class Generator {
     }
 
 
-    private static void readFilesAndWriteDataIntoXlsAndPdf() throws IOException, URISyntaxException, DocumentException {
+    static void readFilesAndWriteDataIntoXlsAndPdf() throws IOException, URISyntaxException, DocumentException {
         femaleNamesList = readDataAndWriteIntoList(femaleNames);
         femalePatronymicsList = readDataAndWriteIntoList(femalePatronymics);
         femaleSurnamesList = readDataAndWriteIntoList(femaleSurnames);
@@ -89,13 +89,13 @@ public class Generator {
         citiesList = readDataAndWriteIntoList(cities);
         List<Record> records = fillData(rnd.nextInt(80)+30);
 
-
         createXslAndFill(records);
 
         createPdfAndFill(records);
     }
 
-    private static void createXslAndFill(List<Record> records) {
+
+    static void createXslAndFill(List<Record> records) {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("Контакты");
         int rowNum = 0;
@@ -143,7 +143,7 @@ public class Generator {
         }
     }
 
-    private static void createPdfAndFill(List<Record> records) throws DocumentException, IOException {
+    static void createPdfAndFill(List<Record> records) throws DocumentException, IOException {
         Document document = new Document(PageSize.A4.rotate(), 0f, 0f, 10f, 10f);
 
         PdfWriter.getInstance(document, new FileOutputStream(pathToResources + "/" + "pdf.pdf"));

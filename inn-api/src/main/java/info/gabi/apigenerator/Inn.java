@@ -1,9 +1,9 @@
-package inn;
+package info.gabi.apigenerator;
 
-class InnObject {
+class Inn {
     private final String inn;
 
-     InnObject(String inn) {
+    Inn(String inn) {
         this.inn = inn;
     }
 

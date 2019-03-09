@@ -1,4 +1,4 @@
-package inn;
+package info.gabi.apigenerator;
 
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ public class InnService {
         this.rnd = new Random();
     }
 
-    InnObject getINN() {
+    Inn getINN() {
         int[] INN = new int[12];
         INN[0] = 7;
         INN[1] = 7;
@@ -30,7 +30,7 @@ public class InnService {
 
         INN[11] = ((3 * INN[0] + 7 * INN[1] + 2 * INN[2] + 4 * INN[3] + 10 * INN[4] + 3 * INN[5] + 5 * INN[6] + 9 * INN[7] + 4 * INN[8] + 6 * INN[9] + 8 * INN[10]) % 11) % 10;
         resultINN += INN[11];
-        return new InnObject(resultINN);
+        return new Inn(resultINN);
     }
 }
 

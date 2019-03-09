@@ -74,7 +74,6 @@ public class Record {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-
     public Integer getAge() {
         return calculateAge(this.birthDate);
     }
