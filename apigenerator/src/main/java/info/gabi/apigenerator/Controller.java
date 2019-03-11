@@ -12,16 +12,10 @@ public class Controller {
 
     @Autowired
     private InnService innService;
-    @Autowired
-    private ZipCodeService zipCodeService;
 
     @GetMapping(path = "/inn", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Inn> inn() {
         return new ResponseEntity<Inn>(innService.getINN(), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/zipcode", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ZipCode> zipCode() {
-        return new ResponseEntity<ZipCode>(zipCodeService.getZipcode(), HttpStatus.OK);
-    }
 }

@@ -46,35 +46,7 @@ public class Record {
                 '}';
     }
 
-    public void print() {
-        System.out.println(this.toString());
-    }
-
-    public Record(String name, String surname, String patronymic, String gender,
-                  LocalDate birthDate, String inn, String zipCode, String country,
-                  String region, String city, String street,
-                  String building, String apartment) {
-        this.name = name;
-        this.surname = surname;
-        this.patronymic = patronymic;
-        this.gender = gender;
-        this.birthDate = birthDate;
-        this.inn = inn;
-        this.zipCode = zipCode;
-        this.country = country;
-        this.region = region;
-        this.city = city;
-        this.street = street;
-        this.building = building;
-        this.apartment = apartment;
-    }
-
-    private Integer calculateAge(LocalDate birthDate) {
-
-        return Period.between(birthDate, LocalDate.now()).getYears();
-    }
-
-    public Integer getAge() {
-        return calculateAge(this.birthDate);
+    Integer getAge() {
+        return Period.between(this.birthDate, LocalDate.now()).getYears();
     }
 }
