@@ -1,6 +1,7 @@
 package info.gabi.datagenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
 import org.ujorm.tools.jdbc.JdbcBuilder;
 import org.ujorm.tools.set.LoopingIterator;
 
@@ -22,6 +23,7 @@ class DatabaseWorker {
     private static String url;
     private static String user;
     private static String password;
+    private Connection connection;
 
     private boolean getProperties() {
         Properties properties = new Properties();
@@ -70,14 +72,17 @@ class DatabaseWorker {
     }
 
     void insertRecords(List<Record> recordList) {
+        int count = 0;
+        connection = checkDbConnection();
         for (Record record : recordList) {
             int addressId = insertAddress(record);
-            log.info("Строки в бд были обновлены: " + insertPerson(record, addressId));
+            insertPerson(record, addressId);
+            count++;
         }
+        log.info("Было обновлено " + count + " строк/строки");
     }
 
     private int insertAddress(Record record) {
-        Connection connection = checkDbConnection();
         if (connection != null) {
             JdbcBuilder sql = new JdbcBuilder()
                     .write("INSERT INTO address (")
@@ -103,9 +108,7 @@ class DatabaseWorker {
         return 0;
     }
 
-    private int insertPerson(Record record, int addressId) {
-        //если человек с таким фио уже есть то делаем апдейт этой записи
-        Connection connection = checkDbConnection();
+    void insertPerson(Record record, int addressId) {
         if (connection != null) {
             try {
                 JdbcBuilder sql = new JdbcBuilder()
@@ -127,7 +130,7 @@ class DatabaseWorker {
                                 .columnUpdate("address_id", addressId)
                                 .write("WHERE")
                                 .andCondition("id", "=", id);
-                        return sql.executeUpdate(connection);
+                        sql.executeUpdate(connection);
                     }
                 } else {
                     sql = new JdbcBuilder()
@@ -140,14 +143,13 @@ class DatabaseWorker {
                             .columnInsert("inn", record.getInn())
                             .columnInsert("address_id", addressId)
                             .write(")");
-                    return sql.executeUpdate(connection);
+                    sql.executeUpdate(connection);
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        return 0;
     }
 
     List<Record> getPersons(int size) {

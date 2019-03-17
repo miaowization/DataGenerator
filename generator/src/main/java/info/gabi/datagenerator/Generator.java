@@ -1,65 +1,53 @@
 package info.gabi.datagenerator;
 
-
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
+@NoArgsConstructor
 class Generator {
 
-    private static String pathToResources = "generator/src/main/resources";
-    private static String femaleNames = pathToResources + "/fnames.txt";
-    private static String maleNames = pathToResources + "/" + "mnames.txt";
-    private static String femalePatronymics = pathToResources + "/" + "fpatronymics.txt";
-    private static String malePatronymics = pathToResources + "/" + "mpatronymics.txt";
-    private static String femaleSurnames = pathToResources + "/" + "fsurnames.txt";
-    private static String maleSurnames = pathToResources + "/" + "msurnames.txt";
-    private static String cities = pathToResources + "/" + "cities.txt";
-    private static String countries = pathToResources + "/" + "countries.txt";
-    private static String regions = pathToResources + "/" + "regions.txt";
-    private static String streets = pathToResources + "/" + "streets.txt";
+    private static ClassLoader loader = Generator.class.getClassLoader();
 
-    private List<String> femaleNamesList;
-    private List<String> maleNamesList;
-    private List<String> malePatronymicsList;
-    private List<String> femalePatronymicsList;
-    private List<String> femaleSurnamesList;
-    private List<String> maleSurnamesList;
-    private List<String> regionsList;
-    private List<String> streetsList;
-    private List<String> countriesList;
-    private List<String> citiesList;
+    private final static InputStream FEMALE_NAMES = loader.getResourceAsStream("fnames.txt");
+    private final static InputStream MALE_NAMES = loader.getResourceAsStream("mnames.txt");
+    private final static InputStream FEMALE_PATRONYMICS = loader.getResourceAsStream("fpatronymics.txt");
+    private final static InputStream MALE_PATRONYMICS = loader.getResourceAsStream("mpatronymics.txt");
+    private final static InputStream FEMALE_SURNAMES = loader.getResourceAsStream("fsurnames.txt");
+    private final static InputStream MALE_SURNAMES = loader.getResourceAsStream("msurnames.txt");
+    private final static InputStream CITIES = loader.getResourceAsStream("cities.txt");
+    private final static InputStream COUNTRIES = loader.getResourceAsStream("countries.txt");
+    private final static InputStream REGIONS = loader.getResourceAsStream("regions.txt");
+    private final static InputStream STREETS = loader.getResourceAsStream("streets.txt");
 
     private Random rnd = new Random();
 
-    Generator() {
-        femaleNamesList = readDataAndWriteIntoList(femaleNames);
-        femalePatronymicsList = readDataAndWriteIntoList(femalePatronymics);
-        femaleSurnamesList = readDataAndWriteIntoList(femaleSurnames);
-        maleNamesList = readDataAndWriteIntoList(maleNames);
-        malePatronymicsList = readDataAndWriteIntoList(malePatronymics);
-        maleSurnamesList = readDataAndWriteIntoList(maleSurnames);
-        regionsList = readDataAndWriteIntoList(regions);
-        streetsList = readDataAndWriteIntoList(streets);
-        countriesList = readDataAndWriteIntoList(countries);
-        citiesList = readDataAndWriteIntoList(cities);
-    }
-
     private List<Record> generateRecordsFromFiles(int size) {
+        List<String> femaleNamesList = readDataAndWriteIntoList(FEMALE_NAMES);
+        List<String> femalePatronymicsList = readDataAndWriteIntoList(FEMALE_PATRONYMICS);
+        List<String> femaleSurnamesList = readDataAndWriteIntoList(FEMALE_SURNAMES);
+        List<String> maleNamesList = readDataAndWriteIntoList(MALE_NAMES);
+        List<String> malePatronymicsList = readDataAndWriteIntoList(MALE_PATRONYMICS);
+        List<String> maleSurnamesList = readDataAndWriteIntoList(MALE_SURNAMES);
+        List<String> regionsList = readDataAndWriteIntoList(REGIONS);
+        List<String> streetsList = readDataAndWriteIntoList(STREETS);
+        List<String> countriesList = readDataAndWriteIntoList(COUNTRIES);
+        List<String> citiesList = readDataAndWriteIntoList(CITIES);
         List<Record> records = new ArrayList<>();
         List<String> namesList, surnamesList, patronymicsList;
         String gender;
+
         for (int i = 0; i < size; i++) {
-            Boolean male = rnd.nextBoolean();
+            boolean male = rnd.nextBoolean();
             namesList = male ? maleNamesList : femaleNamesList;
             surnamesList = male ? maleSurnamesList : femaleSurnamesList;
             patronymicsList = male ? malePatronymicsList : femalePatronymicsList;
@@ -79,15 +67,14 @@ class Generator {
                     streetsList.get(rnd.nextInt(streetsList.size())),
                     String.valueOf(rnd.nextInt(50)),
                     String.valueOf(rnd.nextInt(500))));
-
         }
         return records;
     }
 
-    List<Record> generateRecordsFromDb(int size){
+    List<Record> generateRecordsFromDb(int size) {
         DatabaseWorker dbWorker = new DatabaseWorker();
         List<Record> records = dbWorker.getPersons(size);
-        if(records.size() == 0) {
+        if (records.size() == 0) {
             log.info("База данных пустая, генерируем файлы из файлов-справочников");
             records = generateRecordsFromFiles(size);
         }
@@ -103,14 +90,19 @@ class Generator {
         return LocalDate.ofEpochDay(randomDay);
     }
 
-
-    private List<String> readDataAndWriteIntoList(String filePath) {
-        List<String> list = null;
-        try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
-            list = lines.collect(Collectors.toList());
+    private List<String> readDataAndWriteIntoList(InputStream filePath) {
+        List<String> list = new ArrayList<>();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(filePath));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                list.add(line);
+            }
+            reader.close();
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
         return list;
     }
 }
+
