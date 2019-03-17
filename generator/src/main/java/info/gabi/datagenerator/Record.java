@@ -1,15 +1,17 @@
 package info.gabi.datagenerator;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Generated;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Period;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Record {
 
     private String name;

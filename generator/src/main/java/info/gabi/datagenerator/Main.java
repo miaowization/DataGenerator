@@ -1,6 +1,7 @@
 package info.gabi.datagenerator;
 
 import com.itextpdf.text.DocumentException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 public class Main {
 
     private static Random rnd = new Random();
@@ -27,13 +29,15 @@ public class Main {
 
         DocumentCreator.createPdfAndFill(recordsList);
         DocumentCreator.createXslAndFill(recordsList);
+        DatabaseWorker databaseWorker = new DatabaseWorker();
+        databaseWorker.insertRecords(recordsList);
     }
 
     private static List<Record> generateOnline(int countOfRecords) {
         List<Record> recordsList = new ArrayList<>();
         Requester requester = new Requester();
 
-        System.out.println("Начали запрашивать данные");
+        log.info("Начали запрашивать данные");
         for (int i = 0; i < countOfRecords; i++) {
             Record record = requester.getUser();
             record.setInn(requester.getInn());
@@ -48,11 +52,11 @@ public class Main {
         return recordsList;
     }
 
-    private static List<Record> generateOffline(int countOfRecords) throws IOException, DocumentException {
-        System.out.println("Соединение с интернетом отсутствует, " +
-                "файлы будут сгенерированы по старой схеме");
+    private static List<Record> generateOffline(int countOfRecords) {
+        log.info("Соединение с интернетом отсутствует, " +
+                "файлы будут сгенерированы с информацией из базы данных");
         Generator generator = new Generator();
-        return generator.generateRecords(countOfRecords);
+        return generator.generateRecordsFromDb(countOfRecords);
     }
 
     private static boolean isInternetEnabled() {

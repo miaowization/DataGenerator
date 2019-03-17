@@ -2,9 +2,12 @@ package info.gabi.datagenerator;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.gson.*;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Random;
 
-public class Requester {
+@Slf4j
+class Requester {
 
     private static JsonParser parser = new JsonParser();
     private static Random rnd = new Random();
@@ -27,8 +30,7 @@ public class Requester {
 
     String[] getGeoInfo() {
         JsonArray cities;
-        String country;
-        String countryCode;
+        String country, countryCode;
         do {
             int rndCountryNumber = rnd.nextInt(150) + 1;
             String response = getResponseBody("https://vk.com/select_ajax.php?act=a_get_countries");
@@ -42,11 +44,11 @@ public class Requester {
             cities = jsonElement.getAsJsonArray();
         }
         while (cities.size() == 0);
-        JsonArray citiesArr = cities.get(rnd.nextInt(cities.size()) + 1).getAsJsonArray();
-        String city = citiesArr.get(1).getAsString();
-        city = city.replaceAll("[^\\pL|\\-| ]", "");
-        String region = citiesArr.get(2).getAsString();
-        region = region.replaceAll("[^\\pL|\\-| ]", "");
+        int rndInt = rnd.nextInt(cities.size());
+        int randomNumber = rndInt == 0 ? rndInt+1 : rndInt;
+        JsonArray citiesArr = cities.get(randomNumber).getAsJsonArray();
+        String city = replaceSymbols(citiesArr.get(1).getAsString());
+        String region = replaceSymbols(citiesArr.get(2).getAsString());
         if (region.isEmpty()) region = "-";
         return new String[]{country, region, city};
     }
@@ -56,6 +58,10 @@ public class Requester {
         if (request.code() == 200) {
             return request.body();
         } else return "Internet address " + url + " is not available";
+    }
+
+    private String replaceSymbols(String s){
+        return s.replaceAll("[^\\pL|\\-| ]", "");
     }
 }
 

@@ -1,6 +1,8 @@
 package info.gabi.datagenerator;
 
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,7 +13,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+@Slf4j
 class Generator {
 
     private static String pathToResources = "generator/src/main/resources";
@@ -39,7 +41,7 @@ class Generator {
 
     private Random rnd = new Random();
 
-    public Generator() {
+    Generator() {
         femaleNamesList = readDataAndWriteIntoList(femaleNames);
         femalePatronymicsList = readDataAndWriteIntoList(femalePatronymics);
         femaleSurnamesList = readDataAndWriteIntoList(femaleSurnames);
@@ -52,8 +54,7 @@ class Generator {
         citiesList = readDataAndWriteIntoList(cities);
     }
 
-
-    public List<Record> generateRecords(int size) {
+    private List<Record> generateRecordsFromFiles(int size) {
         List<Record> records = new ArrayList<>();
         List<String> namesList, surnamesList, patronymicsList;
         String gender;
@@ -79,6 +80,16 @@ class Generator {
                     String.valueOf(rnd.nextInt(50)),
                     String.valueOf(rnd.nextInt(500))));
 
+        }
+        return records;
+    }
+
+    List<Record> generateRecordsFromDb(int size){
+        DatabaseWorker dbWorker = new DatabaseWorker();
+        List<Record> records = dbWorker.getPersons(size);
+        if(records.size() == 0) {
+            log.info("База данных пустая, генерируем файлы из файлов-справочников");
+            records = generateRecordsFromFiles(size);
         }
         return records;
     }

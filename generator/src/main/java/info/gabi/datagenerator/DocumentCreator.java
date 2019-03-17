@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
+@Slf4j
  class DocumentCreator {
 
     private static String pathToOutput = ".";
@@ -63,7 +65,7 @@ import java.util.stream.Stream;
         String path = file.getAbsolutePath();
         try (FileOutputStream out = new FileOutputStream(file)) {
             workbook.write(out);
-            System.out.println("Файл создан. Путь: " + path);
+            log.info("Файл создан. Путь: " + path);
         } catch (IOException e) {
             e.getMessage();
         }
@@ -75,7 +77,7 @@ import java.util.stream.Stream;
         File file = new File(pathToOutput + "/pdf.pdf");
         String path = file.getAbsolutePath();
         PdfWriter.getInstance(document, new FileOutputStream(file));
-        System.out.println("Файл создан. Путь: " + path);
+        log.info("Файл создан. Путь: " + path);
         document.open();
         PdfPTable table = new PdfPTable(14);
         addTableHeader(table);

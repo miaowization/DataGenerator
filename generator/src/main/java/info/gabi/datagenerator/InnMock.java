@@ -4,18 +4,17 @@ import lombok.Getter;
 
 import java.util.Random;
 
-public class InnMock {
-    private Random rnd;
+public final class InnMock {
 
     @Getter
     private final String inn;
 
     public InnMock() {
-        rnd = new Random();
         inn = generateInn();
     }
 
     private String generateInn() {
+        Random rnd = new Random();
         int[] INN = new int[12];
         INN[0] = 7;
         INN[1] = 7;
